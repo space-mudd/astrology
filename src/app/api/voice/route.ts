@@ -5,6 +5,8 @@ import { Storage } from "@google-cloud/storage";
 import OpenAI from "openai";
 import { NextRequest } from "next/server";
 import { v4 as uuidv4 } from "uuid";
+export const maxDuration = 60;
+export const dynamic = "force-dynamic";
 interface GooeyPayload {
   input_face: string;
   input_audio: string;
@@ -14,7 +16,7 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-const bucketName = "raygunbucket";
+const bucketName = "raygunastrology";
 const storage = new Storage({
   projectId: process.env.PROJECT_ID,
   credentials: JSON.parse(
@@ -48,11 +50,18 @@ export async function POST(req: NextRequest) {
   const payloadText = {
     search_query: `Name: ${name}, Date of Birth: ${dateOfBirth}, Time of Birth: ${timeOfBirth}, Location: ${location}`,
     documents: [
-      "https://storage.googleapis.com/raygunbucket/manualofcartoman00gran.pdf",
+      "https://wrnxpooigyagkbnwptba.supabase.co/storage/v1/object/public/newbucket/manualofcartoman00gran.pdf",
     ],
-    task_instructions: `You are playing the role of an astrologer and an expert in cartomancy who predicts the future by understanding the positions of the planets and Sun and Moon in the birth chart of an individual. You can provide numerology if the name is provided. You can also provide daily horoscopes based on today’s date and birthday. Your tarot card readings are based on the energy transmitting through the computer. Provide your answer in the following manner: 1) astrology predictions on love, health and wealth. 2) your numerology and your lucky numbers. 3) your horoscope reading for today. Never say contact a professional astrologer. Always close your answer with that these are signs and predictions based on the information provided, however remember my friend, your ultimate fate and destiny lies within you and the forces above.
-      Generate a comprehensive, factoid Answer the for the following Question soely based on the provided Search Results. If the Search Results do not contain enough information, say "I don't know". Use an unbiased, succinct, and funny tone. Use this current date and time: {${`Day: ${day}, Month: ${month}, Year: ${year}`}}. Combine Search Results together into a coherent answer. Do not use punctuation marks like # * : because this text will be voiced by another AI(You can use . and ,). Make it like a speech text. make short statements, don't give long answers
-      `,
+    task_instructions: `You are an astrologer and expert in cartomancy who predicts the future by interpreting planetary positions and birth charts. You can provide numerology readings if given a name. You also offer daily horoscopes based on current dates and birthdays. Your tarot readings come from energy transmitted through the computer.
+Structure your response in this order:
+
+Astrology predictions for love, health, and wealth
+Numerology and lucky numbers
+Today's horoscope reading
+
+Avoid saying 'contact a professional astrologer.' Always conclude with: 'These are signs and predictions based on the information provided. Remember, your ultimate fate and destiny lie within you and the forces above.'
+Generate a comprehensive answer based solely on the provided search results. If there's insufficient information, say 'I don't know.' Use an unbiased, succinct, and lighthearted tone. Use this current date and time: [Day: {${day}}, Month: {${month}}, Year: {${year}}]. Combine search results into a coherent answer.
+Avoid using punctuation marks like hashtags, colons, or semicolons, as this text will be voiced by another AI. You may use periods and commas. Format the text as speech, using short statements and avoiding long answers.`,
     max_tokens: 1024,
   };
 
@@ -113,17 +122,17 @@ export async function POST(req: NextRequest) {
     `https://storage.googleapis.com/${bucketName}/${fileDestination}`
   );
 
-  const payload = {
+  const result = `https://storage.googleapis.com/${bucketName}/${fileDestination}`;
+  return new Response(result);
+}
+
+/*
+const payload = {
     input_face:
       "https://storage.googleapis.com/raygunbucket/LadyFortuna_Blinks.mp4",
     input_audio: `https://storage.googleapis.com/${bucketName}/${fileDestination}`,
     selected_model: "Wav2Lip",
   };
-
-  const result = await gooeyAPI(payload);
-  return new Response(result.output.output_video);
-}
-
 async function gooeyAPI(payload: GooeyPayload) {
   const response = await fetch("https://api.gooey.ai/v2/Lipsync/", {
     method: "POST",
@@ -133,11 +142,12 @@ async function gooeyAPI(payload: GooeyPayload) {
     },
     body: JSON.stringify(payload),
   });
-
+  
   if (!response.ok) {
     throw new Error(`HTTP Error: ${response.status}`);
   }
-
+  
   const result = await response.json();
   return result;
 }
+*/

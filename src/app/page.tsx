@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
+import Image from "next/image";
 import LoadingType from "@/components/LoadingType";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { videos } from "../../videos";
@@ -11,10 +12,75 @@ import BuyCredit from "@/components/BuyCredit";
 import PaymentComponent from "@/components/PaymentComponent";
 import { Button } from "@/components/ui/button";
 import ErrorComponent from "@/components/ErrorComponent";
+import InputFormMobile from "@/components/InputFormMobile";
 
 export default function Home() {
   const { data: session } = useSession();
+  const containerRef = useRef<any>(null);
+  const [pointStyle, setPointStyle] = useState({ top: "0%", left: "0%" });
+  const [pointInputStyle, setPointInputStyle] = useState({
+    top: "0%",
+    left: "0%",
+  });
+  const [isPlaying, setIsPlaying] = useState(false);
+  // Resmin orijinal boyutları
+  const originalImageWidth = 1920;
+  const originalImageHeight = 970;
 
+  // Noktanın orijinal resim üzerindeki koordinatları
+  const pointX = 1248; // X koordinatı (piksel cinsinden)
+  const pointY = 330; // Y koordinatı (piksel cinsinden)
+
+  const pointInputX = 965;
+  const pointInputY = 800;
+  useEffect(() => {
+    const handleResize = () => {
+      if (containerRef.current) {
+        const containerWidth = containerRef.current.clientWidth;
+        const containerHeight = containerRef.current.clientHeight;
+
+        // Ölçek faktörünü hesapla (objectFit: 'cover' için)
+        const scale = Math.max(
+          containerWidth / originalImageWidth,
+          containerHeight / originalImageHeight
+        );
+
+        // Ölçeklenmiş resmin boyutları
+        const displayedImageWidth = originalImageWidth * scale;
+        const displayedImageHeight = originalImageHeight * scale;
+
+        // Kırpılan kısımların offset değerleri
+        const offsetX = (displayedImageWidth - containerWidth) / 2;
+        const offsetY = (displayedImageHeight - containerHeight) / 2;
+
+        // Noktanın kapsayıcı içindeki pozisyonu
+        const pointXInContainer = pointX * scale - offsetX;
+        const pointYInContainer = pointY * scale - offsetY;
+
+        const pointInputXInContainer = pointInputX * scale - offsetX;
+        const pointInputYInContainer = pointInputY * scale - offsetY;
+        // Yüzde değerlerini hesapla
+        const newLeft = (pointXInContainer / containerWidth) * 100;
+        const newTop = (pointYInContainer / containerHeight) * 100;
+        const newInputLeft = (pointInputXInContainer / containerWidth) * 100;
+        const newInputTop = (pointInputYInContainer / containerHeight) * 100;
+
+        setPointStyle({
+          top: `${newTop}%`,
+          left: `${newLeft}%`,
+        });
+
+        setPointInputStyle({
+          top: `${newInputTop}%`,
+          left: `${newInputLeft}%`,
+        });
+      }
+    };
+
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   const [screenWidth, setScreenWidth] = useState(0);
   const [inputText, setInputText] = useState("");
   const [videoMuted, setVideoMuted] = useState(true);
@@ -47,10 +113,11 @@ export default function Home() {
 
   const image = { width: 1920, height: 970 };
   const target = { x: 1230, y: 305 };
+  const targetCreditMobile = { x: 1270, y: 305 };
   const targetInput = { x: 820, y: 807 };
-  const targetInputMobile = { x: 820, y: 837 };
-  const targetForm = { x: 820, y: 880 };
-  const targetFormMobile = { x: 820, y: 910 };
+  const targetInputMobile = { x: 1200, y: 837 };
+  const targetForm = { x: 810, y: 830 };
+  const targetFormMobile = { x: 860, y: 835 };
   const targetVideo = { x: 500, y: 200 };
   const [pointerCreditPosition, setPointerCreditPosition] = useState({
     top: 0,
@@ -78,13 +145,15 @@ export default function Home() {
   const [generatedVideoUrl, setGeneratedVideoUrl] = useState("");
   const generatedVideoRef = useRef<HTMLVideoElement>(null);
 
+  const [isGeneratedVideoPlaying, setIsGeneratedVideoPlaying] = useState(false);
+
   const handleReplay = () => {
     if (generatedVideoRef.current) {
       generatedVideoRef.current.currentTime = 0;
       generatedVideoRef.current.play();
       setIsFirstVideoEnded(false);
     }
-    console.log("Replay clicked"); // Kontrol için log ekledik
+    console.log("Replay clicked");
   };
   useEffect(() => {
     const updatePointer = () => {
@@ -105,8 +174,14 @@ export default function Home() {
       }
 
       setPointerCreditPosition({
-        top: target.y * scale + yOffset,
-        left: target.x * scale + xOffset,
+        top:
+          windowWidth > 768
+            ? target.y * scale + yOffset
+            : targetCreditMobile.y * scale + yOffset,
+        left:
+          windowWidth > 768
+            ? target.x * scale + xOffset
+            : targetCreditMobile.x * scale + xOffset,
       });
 
       setPointerInputPosition({
@@ -121,7 +196,10 @@ export default function Home() {
           windowWidth > 768
             ? targetForm.y * scale + yOffset
             : targetFormMobile.y * scale + yOffset,
-        left: targetForm.x * scale + xOffset,
+        left:
+          windowWidth > 768
+            ? targetForm.x * scale + xOffset
+            : targetFormMobile.x * scale + xOffset,
       });
 
       setPointerVideoPosition({
@@ -140,8 +218,8 @@ export default function Home() {
     setCharacter(Math.floor(Math.random() * 2) + 1 === 1 ? "AVA" : "KAI");
 
     function handleResize() {
-      const newFontSize = `${(window.innerHeight * 35) / 930}px`;
-      const newInputFontSize = `${(window.innerHeight * 15) / 930}px`;
+      const newFontSize = `${(window.innerHeight * 40) / 930}px`;
+      const newInputFontSize = `${(window.innerHeight * 18) / 930}px`;
       setFontSize(newFontSize);
       setInputFontSize(newInputFontSize);
     }
@@ -158,6 +236,11 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (name && !session) {
+      setShowForm(true);
+    }
+  }, [name]);
+  useEffect(() => {
     handleCredit();
     const fetchData = async function () {
       const res = await fetch("/api/videoData", {
@@ -166,6 +249,8 @@ export default function Home() {
       const body = await res.json();
       const urls = body.urls;
       setVideoURLs(urls);
+      console.log("urls:");
+      console.log(urls);
     };
     fetchData();
     getCredit();
@@ -177,33 +262,63 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (generatedVideoUrl && isFirstVideoEnded) {
+      console.log("first video ended:");
+
+      console.log("generated video url:");
+      console.log(generatedVideoUrl);
+    }
+  }, [generatedVideoUrl, isFirstVideoEnded]);
+  useEffect(() => {
     if (isLoading) {
-      setVideoUrl(videoURLs[Math.floor(Math.random() * 19)]);
+      setVideoUrl(videoURLs[0]);
       setVideoKey(Date.now());
     }
   }, [isLoading]);
 
   const handleClick = async function () {
     try {
-      setIsLoading(true);
-      const res = await fetch("/api/voice", {
-        method: "POST",
-        body: JSON.stringify({
-          inputText: inputText,
-          character: character,
-          name,
-          dateOfBirth,
-          timeOfBirth,
-          location,
-        }),
-      });
-      const text = await res.text();
-      console.log("text:" + text);
-      setIsLoading(false);
-      setGeneratedVideoUrl(text);
-      console.log("generated video url:");
-      console.log(text);
-      setVideoKey(Date.now());
+      if (session) {
+        setIsLoading(true);
+        const res = await fetch("/api/voice", {
+          method: "POST",
+          body: JSON.stringify({
+            inputText: inputText,
+            character: character,
+            name,
+            dateOfBirth,
+            timeOfBirth,
+            location,
+          }),
+        });
+        const text = await res.text();
+        console.log("text:" + text);
+        const startGeneration = await fetch("/api/startGeneration", {
+          method: "POST",
+          body: JSON.stringify({ audioUrl: text }),
+        });
+        const obj = await startGeneration.json();
+        const statusUrl = await obj.status_url;
+        while (true) {
+          const newRes = await fetch("/api/statusGeneration", {
+            method: "POST",
+            body: JSON.stringify({ status_url: statusUrl }),
+          });
+          const newResJson = await newRes.json();
+          const curStatus = newResJson.status;
+          if (curStatus === "not yet") {
+            console.log("not yet");
+            await new Promise((resolve) => setTimeout(resolve, 5000));
+          } else {
+            console.log("succes:");
+            console.log(newResJson);
+            setGeneratedVideoUrl(newResJson.output.output_video);
+            setVideoKey(Date.now());
+            setIsLoading(false);
+            break;
+          }
+        }
+      }
     } catch (error) {
       setIsError(true);
       console.error(error);
@@ -211,32 +326,30 @@ export default function Home() {
   };
 
   const decrementCredit = async function () {
-    setCreditCount(creditCount - 1);
+    console.log("credit using");
+
     const res = await fetch("/api/useCredit", {
       method: "POST",
       body: JSON.stringify({ userId: session?.user?.id }),
     });
   };
-  const handleSubmit = async () => {
+  const handleSubmit = async (e: any) => {
+    e.preventDefault();
     if (!session) {
       setShowForm(true);
     } else {
       if (creditCount > 0) {
-        setCreditCount(creditCount - 1);
+        console.log("credit count greater than 0");
         await handleClick();
-        setInputText("");
         await decrementCredit();
+        setCreditCount(creditCount - 1);
+        setInputText("");
       } else {
         setShowBuyCredit(true);
       }
     }
   };
-  const handleKeyDown = async (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      await handleSubmit();
-    }
-  };
+
   useEffect(() => {
     const handleResize = () => setScreenWidth(window.innerWidth);
     window.addEventListener("resize", handleResize);
@@ -259,22 +372,23 @@ export default function Home() {
   useEffect(() => {
     if (mainVideoRef.current) {
       mainVideoRef.current.muted = true;
-      mainVideoRef.current
-        .play()
-        .then(() => {
-          // Video başladıktan 2 saniye sonra sesi aç
-          setTimeout(() => {
-            if (mainVideoRef.current) {
-              mainVideoRef.current.muted = false;
-              setVideoMuted(false);
-            }
-          }, 2000);
-        })
-        .catch((error) => {
-          console.error("Video playback failed:", error);
-        });
+      if (isPlaying) {
+        mainVideoRef.current
+          .play()
+          .then(() => {
+            setTimeout(() => {
+              if (mainVideoRef.current) {
+                mainVideoRef.current.muted = false;
+                setVideoMuted(false);
+              }
+            }, 2000);
+          })
+          .catch((error) => {
+            console.error("Video playback failed:", error);
+          });
+      }
     }
-  }, [isMainVideoLoaded]);
+  }, [isPlaying, isMainVideoLoaded]);
 
   const handleVideoEnd = () => {
     setVideoUrl("/LadyFortuna_Blinks.mp4");
@@ -290,20 +404,36 @@ export default function Home() {
   };
 
   const getCredit = async function () {
-    if (session?.user) {
-      console.log(session.user);
+    console.log("working");
+    console.log("currentses:");
+    console.log(session);
+    if (session?.user?.id) {
+      try {
+        const res = await fetch("/api/getCredit", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            userId: session.user.id,
+          }),
+        });
 
-      const res = await fetch("/api/getCredit", {
-        method: "POST",
-        body: JSON.stringify({
-          userId: session?.user.id,
-        }),
-      });
-      const resJSON = await res.json();
-      const credit = resJSON.credit;
-      setCreditCount(credit);
+        if (!res.ok) {
+          throw new Error("Failed to fetch credit");
+        }
+
+        const resJSON = await res.json();
+        console.log("curcredit:.");
+        console.log(resJSON);
+        setCreditCount(resJSON.credit || 0);
+      } catch (error) {
+        console.error("Error fetching credit:", error);
+        setCreditCount(0);
+      }
     } else {
-      console.log("not logged in");
+      console.log("User not logged in");
+      setCreditCount(0);
     }
   };
   const handleCredit = async function () {
@@ -347,6 +477,12 @@ export default function Home() {
     </div>
   );
 
+  const handlePlayClick = () => {
+    if (mainVideoRef.current) {
+      setIsPlaying(true);
+    }
+  };
+
   const handleStartOver = () => {
     // Seçenek 1: Sayfayı tamamen yenile
     window.location.href = "/";
@@ -356,10 +492,18 @@ export default function Home() {
     //   window.location.reload();
     // });
   };
+
+  const handleGeneratedVideoPlay = () => {
+    if (generatedVideoRef.current) {
+      setIsGeneratedVideoPlaying(true);
+      generatedVideoRef.current.play();
+    }
+  };
+
   return (
-    <div>
+    <div className="overflow-y-hidden">
       {isImageLoading && LoadingScreen()}
-      <div className="relative bg-black h-screen w-full">
+      <div className="relative bg-black h-[calc(100dvh)] xl:w-full md:w-[calc((1400/970)*100dvh)] w-[calc((672/970)*100dvh)] overflow-y-hidden">
         {isError && <ErrorComponent />}
         <button
           className="absolute z-30 top-0 bg-transparent text-transparent"
@@ -381,34 +525,40 @@ export default function Home() {
         >
           token
         </button>
-        <div className="relative w-full h-screen">
+        <div
+          className={`relative xl:w-full md:w-[calc((1400/970)*100dvh)] w-[calc((672/970)*100dvh)] h-[calc(100dvh)] overflow-y-hidden`}
+        >
+          {!isLoading && !isImageLoading ? (
+            <div className="md:hidden flex">
+              <InputFormMobile
+                handleSubmit={handleSubmit}
+                inputWidth={inputWidth}
+                name={name}
+                setName={setName}
+                dateOfBirth={dateOfBirth}
+                setDateOfBirth={setDateOfBirth}
+                timeOfBirth={timeOfBirth}
+                setTimeOfBirth={setTimeOfBirth}
+                location={location}
+                setLocation={setLocation}
+                handleClick={handleClick}
+              />
+            </div>
+          ) : (
+            ""
+          )}
           {!isLoading && !isImageLoading ? (
             <form onSubmit={handleSubmit}>
-              <p
-                style={{
-                  height: "calc(1/6 * 100%)",
-                  top: `${pointerInputPosition.top}px`,
-                  left: `${pointerInputPosition.left}px`,
-                  //width: "calc(22/100 * 100%)",
-                  width: `${inputWidth}px`,
-                  fontSize: inputFontSize,
-                }}
-                className="absolute tracking-tighter leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden"
-              >
-                Bestow upon me the tales you wish to weave. The richer the
-                details, the finer the tapestry. Your data is encrypted for
-                privacy and security and deleted once our mystical session ends.
-              </p>
               <div
                 style={{
                   height: "calc(1/6 * 100%)",
-                  top: `${pointerFormPosition.top}px`,
-                  left: `${pointerFormPosition.left}px`,
+                  top: pointInputStyle.top,
+                  left: pointInputStyle.left,
+                  transform: "translate(-50%, -50%)",
                   //width: "calc(22/100 * 100%)",
                   width: `${inputWidth}px`,
-                  fontSize: `${inputFontSize}`,
                 }}
-                className="absolute tracking-tighter leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden"
+                className={`absolute md:block hidden md:text-[calc(8/400*100dvh)] text-[calc(7/400*100dvh)] tracking-tighter md:top-[${pointInputStyle.top}px] md:left-[${pointInputStyle.left}px] top-[calc(86/100*100dvh)] left-[calc(7/50*100dvh)] leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden`}
               >
                 <div className="flex items-center gap-2">
                   <p>YOUR NAME:</p>
@@ -417,7 +567,7 @@ export default function Home() {
                     onChange={(e) => {
                       setName(e.target.value);
                     }}
-                    className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
+                    className="w-[65%] bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
                   />
                 </div>
                 <div className="flex items-center gap-2">
@@ -450,7 +600,7 @@ export default function Home() {
                     className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
                   />
                   <Button
-                    onClick={handleClick}
+                    onClick={handleSubmit}
                     className="bg-transparent h-[10px]"
                   >
                     Send
@@ -462,20 +612,63 @@ export default function Home() {
             !isImageLoading && (
               <LoadingType
                 character={character}
-                pointerInputPosition={pointerInputPosition}
+                pointerInputPosition={pointInputStyle}
               />
             )
           )}
-          <LazyLoadImage
-            className="z-10 absolute top-0 left-0 w-full h-full object-cover"
-            src="/ASTROLOGY_ROOM_LADY_FORTUNA.png"
-            alt="background"
-            style={{ objectFit: "cover" }}
-            onLoad={() => setIsImageLoading(false)}
-          />
+
+          <div
+            ref={containerRef}
+            className="relative z-20 sm:block hidden h-screen overflow-hidden"
+          >
+            <LazyLoadImage
+              className="z-20 w-full h-full object-cover"
+              src="/ASTROLOGY_ROOM_LADY_FORTUNA.png"
+              alt="Büyük Resim"
+              onLoad={() => setIsImageLoading(false)}
+            />
+
+            <div
+              className="z-20 absolute text-red-600"
+              style={{
+                top: pointStyle.top,
+                left: pointStyle.left,
+                transform: "translate(-50%, -50%)",
+              }}
+            >
+              {fontSize && !isImageLoading ? (
+                <p
+                  className="text-xl sm:flex hidden"
+                  style={{ fontSize: fontSize }}
+                >
+                  {creditCount > 9 ? creditCount : `0${creditCount}`}
+                </p>
+              ) : (
+                ""
+              )}
+            </div>
+          </div>
+
+          <div className="md:hidden flex">
+            <LazyLoadImage
+              className="z-10 absolute md:hidden flex top-0 left-0 w-full h-full object-cover"
+              src="/room.png"
+              alt="background"
+              style={{ objectFit: "cover" }}
+              onLoad={() => setIsImageLoading(false)}
+            />
+          </div>
+          <div className="xl:hidden md:flex hidden">
+            <LazyLoadImage
+              className="z-10 absolute top-0 left-0 w-[calc((1400/970)*100dvh)] h-full"
+              src="/1024.png"
+              alt="background"
+              onLoad={() => setIsImageLoading(false)}
+            />
+          </div>
           {isFirstVideoEnded && (
             <div
-              className={`h-full w-full absolute -top-[70px] left-0 flex items-center justify-center z-50`}
+              className={`h-full w-full absolute -top-[70px] md:left-0 -left-10 flex items-center justify-center z-50`}
             >
               <div className="flex flex-col gap-2">
                 <Button
@@ -494,119 +687,130 @@ export default function Home() {
             </div>
           )}
           {videoUrl && !videoURLs.includes(videoUrl) ? (
-            <div
-              className="z-0 absolute flex justify-center aspect-[16/9]"
-              style={{
-                top: "calc(175/800 * 100%)",
-                height: "calc(115/300 * 100%)",
-                left: "calc(100/200 * 100%)",
-                transform: "translate(-50%)",
-              }}
-            >
-              {!generatedVideoUrl && (
-                <video
-                  ref={loopVideoRef}
-                  key={`loop-${videoKey}`}
-                  muted
-                  className="h-full w-full absolute top-0 left-0"
-                  autoPlay
-                  loop
-                  playsInline
-                  preload="auto"
+            <div>
+              {!isPlaying && isImageLoading === false && (
+                <button
+                  onClick={handlePlayClick}
+                  className="absolute top-[calc(16/40*100%)] sm:left-1/2 left-[calc(85/200*100%)] transform -translate-x-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-4 z-50"
                 >
-                  <source src="/LadyFortuna_Blinks.mp4" type="video/mp4" />
-                </video>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="white"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
               )}
 
-              {/* Ana video */}
-              {!isFirstVideoEnded && !generatedVideoUrl && (
-                <video
-                  ref={mainVideoRef}
-                  key={`main-${videoKey}`}
-                  muted={videoMuted}
-                  className={`h-full w-full absolute top-0 left-0 transition-opacity duration-1000 ${
-                    isMainVideoLoaded ? "opacity-100" : "opacity-0"
-                  }`}
-                  autoPlay
-                  playsInline
-                  preload="auto"
-                  onEnded={handleVideoEnd}
-                >
-                  <source src="/LadyFortuna_Full.mp4" type="video/mp4" />
-                </video>
-              )}
+              <div
+                className="z-0 absolute flex md:left-[calc(100/200*100%)] left-[calc(85/200*100%)] justify-center aspect-[16/9]"
+                style={{
+                  top: "calc(175/800 * 100%)",
+                  height: "calc(115/300 * 100%)",
+                  transform: "translate(-50%)",
+                }}
+              >
+                {/* Ana video */}
+                {!isFirstVideoEnded && !generatedVideoUrl && (
+                  <video
+                    ref={mainVideoRef}
+                    key={`main-${videoKey}`}
+                    muted={videoMuted}
+                    className={`h-full w-full absolute top-0 left-0 transition-opacity duration-1000 ${
+                      isMainVideoLoaded ? "opacity-100" : "opacity-0"
+                    }`}
+                    playsInline
+                    preload="auto"
+                    onEnded={handleVideoEnd}
+                  >
+                    <source src="/LadyFortuna_Full.mp4" type="video/mp4" />
+                  </video>
+                )}
+              </div>
             </div>
           ) : (
-            <div
-              className="z-100 absolute flex justify-center aspect-[16/9]"
-              style={{
-                top: "calc(175/800 * 100%)",
-                height: "calc(115/300 * 100%)",
-                left: "calc(100/200 * 100%)",
-                transform: "translate(-50%)",
-              }}
-            >
-              {generatedVideoUrl && (
-                <video
-                  ref={generatedVideoRef}
-                  className={`h-full w-full absolute top-0 left-0 transition-opacity duration-1000`}
-                  autoPlay
-                  playsInline
-                  preload="auto"
-                  onEnded={() => {
-                    setIsFirstVideoEnded(true);
-                  }}
+            <div>
+              {generatedVideoUrl && !isGeneratedVideoPlaying && (
+                <button
+                  onClick={handleGeneratedVideoPlay}
+                  className="absolute top-[calc(16/40*100%)] sm:left-1/2 left-[calc(85/200*100%)] transform -translate-x-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/50 rounded-full p-4 z-50"
                 >
-                  <source src={generatedVideoUrl} type="video/mp4" />
-                </video>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    viewBox="0 0 24 24"
+                    fill="white"
+                  >
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                </button>
               )}
+              <div
+                className="z-100 md:left-[calc(100/200*100%)] left-[calc(85/200*100%)] absolute flex justify-center aspect-[16/9]"
+                style={{
+                  top: "calc(175/800 * 100%)",
+                  height: "calc(115/300 * 100%)",
+                  transform: "translate(-50%)",
+                }}
+              >
+                {generatedVideoUrl && (
+                  <video
+                    ref={generatedVideoRef}
+                    className={`h-full w-full absolute top-0 left-0 transition-opacity duration-1000`}
+                    playsInline
+                    preload="auto"
+                    onEnded={() => {
+                      setIsFirstVideoEnded(true);
+                    }}
+                  >
+                    <source src={generatedVideoUrl} type="video/mp4" />
+                  </video>
+                )}
+              </div>
             </div>
           )}
           {videoUrl && videoURLs.includes(videoUrl) && !generatedVideoUrl ? (
-            <div
-              className="z-0 absolute left-1/2 -translate-x-1/2 flex justify-center aspect-[16/9]"
-              style={{
-                top: "calc(110/800 * 100%)",
-                height: "calc(115/300 * 100%)",
-                left: "calc(102/200 * 100%)",
-                transform: "translate(-50%)",
-              }}
-            >
-              <video
-                ref={videoRef}
-                key={videoKey}
-                muted={videoMuted}
-                className={`h-full w-full`}
-                autoPlay
-                playsInline
-                loop={videoUrl === "/LadyFortuna_Blinks.mp4"}
-                preload="none"
-                onEnded={handleVideoEnd}
+            <div>
+              <div
+                className="z-0 absolute -translate-x-1/2 flex md:left-[calc(100/200*100%)] left-[calc(86/200*100%)] justify-center aspect-[16/9]"
+                style={{
+                  top: "calc(140/800 * 100%)",
+                  height: "calc(115/300 * 100%)",
+                  left: "calc(102/200 * 100%)",
+                  transform: "translate(-50%)",
+                }}
               >
-                <source src={videoUrl} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
+                <video
+                  ref={videoRef}
+                  key={videoKey}
+                  muted={videoMuted}
+                  className={`h-full w-full`}
+                  autoPlay
+                  playsInline
+                  loop={videoUrl === "/LadyFortuna_Blinks.mp4"}
+                  preload="none"
+                  onEnded={handleVideoEnd}
+                >
+                  <source src={videoUrl} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              </div>
             </div>
           ) : (
             ""
           )}
         </div>
-        <div>
-          {fontSize && !isImageLoading ? (
-            <p
-              className="z-20 absolute flex justify-center mb-8 text-red-600"
-              style={{
-                top: `${pointerCreditPosition.top}px`,
-                left: `${pointerCreditPosition.left}px`,
-                fontSize: fontSize,
-              }}
-            >
-              {creditCount > 9 ? creditCount : `0${creditCount}`}
-            </p>
-          ) : (
-            ""
-          )}
-        </div>
+        {fontSize && !isImageLoading ? (
+          <p className="z-20 md:hidden flex text-[calc(18/400*100dvh)] top-[calc(123/400*100%)] xl:left-[calc(383/600*100%)] md:left-[calc(412/600*100%)] left-[calc(485/600*100%)] absolute justify-center mb-8 text-red-600">
+            {creditCount > 9 ? creditCount : `0${creditCount}`}
+          </p>
+        ) : (
+          ""
+        )}
         {showForm && (
           <SignInForm showForm={showForm} setShowForm={setShowForm} />
         )}
