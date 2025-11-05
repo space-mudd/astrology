@@ -557,6 +557,7 @@ export default function Home() {
                   transform: "translate(-50%, -50%)",
                   //width: "calc(22/100 * 100%)",
                   width: `${inputWidth}px`,
+                  marginTop: "13px",
                 }}
                 className={`absolute md:block hidden md:text-[calc(8/400*100dvh)] text-[calc(7/400*100dvh)] tracking-tighter md:top-[${pointInputStyle.top}px] md:left-[${pointInputStyle.left}px] top-[calc(86/100*100dvh)] left-[calc(7/50*100dvh)] leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden`}
               >
@@ -600,7 +601,7 @@ export default function Home() {
                     className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
                   />
                 </div>
-                <div className="flex justify-center">
+                <div className="flex justify-end">
                   <Button
                     onClick={handleSubmit}
                     className="bg-transparent h-[10px]"

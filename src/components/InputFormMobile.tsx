@@ -24,52 +24,52 @@ function InputFormMobile({
             //width: "calc(22/100 * 100%)",
             width: `${inputWidth}px`,
           }}
-          className={`text_main absolute md:text-[calc(8/400*100dvh)] text-[calc(7/400*100dvh)] tracking-tighter xl:top-[calc(87/100*100%)] md:top-[calc(86/100*100%)] xl:left-[calc(85/200*100%)] md:left-[calc(78/200*100%)] top-[calc(86/100*100dvh)] left-[calc(7/50*100dvh)] leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden`}
+          className={`text_main absolute md:text-[calc(9/400*100dvh)] text-[calc(8/400*100dvh)] tracking-tighter xl:top-[calc(87/100*100%)] md:top-[calc(86/100*100%)] xl:left-[calc(85/200*100%)] md:left-[calc(78/200*100%)] top-[calc(88/100*100dvh)] left-[calc(7/67*100dvh)] leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden`}
         >
-          <div className="flex items-center gap-2">
-            <p>YOUR NAME:</p>
+          <div className="flex items-center">
+            <p className="w-[30%] text-right text-[12px]">YOUR NAME:</p>
             <input
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
               }}
-              className="w-[56%] bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
+              className="w-[70%] bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <p>DATE OF BIRTH:</p>
+          <div className="flex items-center">
+            <p className="w-[30%] text-right text-[12px]">BIRTH DATE:</p>
             <input
               value={dateOfBirth}
               onChange={(e) => {
                 setDateOfBirth(e.target.value);
               }}
-              className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
+              className="w-[70%] bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <p>TIME OF BIRTH:</p>
+          <div className="flex items-center">
+            <p className="w-[30%] text-right text-[12px]">BIRTH TIME:</p>
             <input
               value={timeOfBirth}
               onChange={(e) => {
                 setTimeOfBirth(e.target.value);
               }}
-              className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
+              className="w-[70%] bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
             />
           </div>
-          <div className="flex items-center gap-2">
-            <p>LOCATION:</p>
+          <div className="flex items-center">
+            <p className="w-[30%] text-right text-[12px]">LOCATION:</p>
             <input
               value={location}
               onChange={(e) => {
                 setLocation(e.target.value);
               }}
-              className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
+              className="w-[70%] bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
             />
           </div>
-          <div className="flex justify-center">
+          <div className="flex justify-self-end">
             <Button
               onClick={handleClick}
-              className="bg-transparent h-auto text-[9px]"
+              className="bg-transparent h-auto text-[12px]"
             >
               Send
             </Button>
