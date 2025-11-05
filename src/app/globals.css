@@ -84,3 +84,10 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+@media screen and (max-width: 768px) {
+.text_main{
+  font-size: 9px;
+}
+  
+}

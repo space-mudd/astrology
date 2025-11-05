@@ -551,7 +551,7 @@ export default function Home() {
             <form onSubmit={handleSubmit}>
               <div
                 style={{
-                  height: "calc(1/6 * 100%)",
+                  height: "calc(1/4.5 * 100%)",
                   top: pointInputStyle.top,
                   left: pointInputStyle.left,
                   transform: "translate(-50%, -50%)",
@@ -599,6 +599,8 @@ export default function Home() {
                     }}
                     className="bg-transparent border-b mb-1.5 border-white focus:border-b focus:border-white focus:outline-none h-full"
                   />
+                </div>
+                <div className="flex justify-center">
                   <Button
                     onClick={handleSubmit}
                     className="bg-transparent h-[10px]"
