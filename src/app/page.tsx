@@ -31,7 +31,7 @@ export default function Home() {
   const pointX = 1248; // X koordinatı (piksel cinsinden)
   const pointY = 330; // Y koordinatı (piksel cinsinden)
 
-  const pointInputX = 930;
+  const pointInputX = 950;
   const pointInputY = 800;
   useEffect(() => {
     const handleResize = () => {
