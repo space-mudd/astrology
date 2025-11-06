@@ -562,7 +562,7 @@ export default function Home() {
                 className={`absolute md:block hidden md:text-[calc(8/400*100dvh)] text-[calc(7/400*100dvh)] tracking-tighter md:top-[${pointInputStyle.top}px] md:left-[${pointInputStyle.left}px] top-[calc(86/100*100dvh)] left-[calc(7/50*100dvh)] leading-tight -translate-y-2/3 bg-transparent border-none outline-none focus:border-none focus:outline-none text-white z-30 resize-none overflow-hidden`}
               >
                 <div className="flex items-center gap-2">
-                  <p className="w-[30%] text-right text-[13px]">YOUR NAME:</p>
+                  <p className="w-[30%] text-right text-[12px]">YOUR NAME:</p>
                   <input
                     value={name}
                     onChange={(e) => {
@@ -572,7 +572,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="w-[30%] text-right text-[13px]">BIRTH DATE:</p>
+                  <p className="w-[30%] text-right text-[12px]">BIRTH DATE:</p>
                   <input
                     value={dateOfBirth}
                     onChange={(e) => {
@@ -582,7 +582,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="w-[30%] text-right text-[13px]">BIRTH TIME:</p>
+                  <p className="w-[30%] text-right text-[12px]">BIRTH TIME:</p>
                   <input
                     value={timeOfBirth}
                     onChange={(e) => {
@@ -592,7 +592,7 @@ export default function Home() {
                   />
                 </div>
                 <div className="flex items-center gap-2">
-                  <p className="w-[30%] text-right text-[13px]">LOCATION:</p>
+                  <p className="w-[30%] text-right text-[12px]">LOCATION:</p>
                   <input
                     value={location}
                     onChange={(e) => {
@@ -604,7 +604,7 @@ export default function Home() {
                 <div className="flex justify-end">
                   <Button
                     onClick={handleSubmit}
-                    className="bg-transparent h-[10px] text-[13px]"
+                    className="bg-transparent h-[10px] text-[12px]"
                   >
                     Send
                   </Button>
