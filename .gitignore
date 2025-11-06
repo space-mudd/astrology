@@ -1,0 +1,51 @@
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Next.js
+.next/
+out/
+build/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.*
+
+# Logs
+*.log
+
+# Editor / OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.tsbuildinfo
+
+# Cache / temp
+.cache/
+dist/
+coverage/
+
+# Vercel
+.vercel/
+.vercel/output/
+
+# Prisma local DB / migrations (optional)
+prisma/dev.db
+prisma/migrations/local/
+
+# Misc
+*.local
+
+# Ignore generated assets
+public/**/*.map
+
+# Ignore storybook build
+storybook-static/
